@@ -1,4 +1,4 @@
-// Arreglo inicial con los 12 productos del catálogo
+
 const productosIniciales = [
   { id: 1, codigo: "KEY-001", nombre: "Teclado Mecánico RGB Switch Red", precio: 45990, stock: 15, categoria: "Periféricos", imagen: "img/teclado.jpg" },
   { id: 2, codigo: "MOU-002", nombre: "Mouse Gamer Ultra Ligero 16000 DPI", precio: 29990, stock: 20, categoria: "Periféricos", imagen: "img/mouse.jpg" },
@@ -14,43 +14,50 @@ const productosIniciales = [
   { id: 12, codigo: "BAR-012", nombre: "Barra de Sonido Gamer Bluetooth", precio: 32990, stock: 9, categoria: "Audio", imagen: "img/parlante.jpg" }
 ];
 
-// Inicializar LocalStorage si no existen los datos
+
 function inicializarBaseDeDatos() {
     if (!localStorage.getItem('productosDB')) {
         localStorage.setItem('productosDB', JSON.stringify(productosIniciales));
     }
 }
 
-// Obtener productos desde LocalStorage
+
 function obtenerProductos() {
-    return JSON.parse(localStorage.getItem('productosDB')) || productosIniciales;
+    try {
+        const datos = localStorage.getItem('productosDB');
+        return datos ? JSON.parse(datos) : productosIniciales;
+    } catch (e) {
+        return productosIniciales;
+    }
 }
 
-// Cargar catálogo en productos.html o destacados en index.html
+
 function renderizarProductos(contenedorId, limite = null) {
     const contenedor = document.getElementById(contenedorId);
-    if (!contenedor) return;
+    if (!contenedor) return; // Si el ID no existe en la página actual, ignora la ejecución
 
     let lista = obtenerProductos();
     if (limite) {
         lista = lista.slice(0, limite);
     }
 
-    contenedor.innerHTML = '';
+    let htmlContenido = '';
     lista.forEach(prod => {
-        contenedor.innerHTML += `
+        htmlContenido += `
             <div class="product-card">
                 <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/250x180?text=PROSETUP'">
                 <h3>${prod.nombre}</h3>
                 <p class="price">$${prod.precio.toLocaleString('es-CL')}</p>
-                <button class="btn-primary" onclick="agregarAlCarrito(${prod.id})">Añadir al Carrito</button>
+                <button type="button" class="btn-primary" onclick="agregarAlCarrito(${prod.id})">Añadir al Carrito</button>
                 <a href="detalle-producto.html?id=${prod.id}" class="btn-secondary">Ver Detalle</a>
             </div>
         `;
     });
+
+    contenedor.innerHTML = htmlContenido;
 }
 
-// Función para agregar al carrito
+// Agregar al carrito y actualizar solo el texto del badge
 function agregarAlCarrito(id) {
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     const producto = obtenerProductos().find(p => p.id === id);
@@ -68,7 +75,7 @@ function agregarAlCarrito(id) {
     }
 }
 
-// Actualizar el número del carrito en el header
+// Actualizar contador visual del carrito
 function actualizarContadorCarrito() {
     const contador = document.getElementById('cart-count');
     if (contador) {
@@ -78,10 +85,10 @@ function actualizarContadorCarrito() {
     }
 }
 
-// Ejecutar al cargar el documento
+// Evento de carga segura del DOM
 document.addEventListener('DOMContentLoaded', () => {
     inicializarBaseDeDatos();
-    renderizarProductos('contenedor-productos'); // Para productos.html
-    renderizarProductos('destacados-container', 4); // Para index.html (4 destacados)
+    renderizarProductos('contenedor-productos'); // Ejecuta en productos.html
+    renderizarProductos('destacados-container', 4); // Ejecuta en index.html
     actualizarContadorCarrito();
 });
