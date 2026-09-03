@@ -166,6 +166,241 @@ body {
     opacity: 0.85;
 }
 
+/* Encabezado del catálogo */
+.catalog-header {
+    text-align: center;
+    padding: 50px 20px 10px;
+}
+
+.catalog-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+}
+
+.catalog-header p {
+    color: var(--text-muted);
+}
+
+/* Barra de Filtros */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-bg);
+    border: 1px solid #2a2e3d;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 0 auto 10px;
+}
+
+.filter-bar input,
+.filter-bar select {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid #2a2e3d;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+}
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+    outline: none;
+    border-color: var(--primary-cyan);
+}
+
+.filter-bar input {
+    flex: 1 1 220px;
+}
+
+.filter-bar select {
+    flex: 0 1 200px;
+}
+
+.filter-bar .btn-clear {
+    background: transparent;
+    color: var(--primary-cyan);
+    border: 1px solid var(--primary-cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.filter-bar .btn-clear:hover {
+    background-color: var(--primary-cyan);
+    color: #000;
+}
+
+.sin-resultados {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 60px 20px;
+    grid-column: 1 / -1;
+}
+
+/* Detalle de Producto */
+.detalle-breadcrumb {
+    max-width: 1200px;
+    margin: 30px auto 0;
+    padding: 0 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.detalle-breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.detalle-breadcrumb a:hover {
+    color: var(--primary-cyan);
+}
+
+.detalle-producto {
+    max-width: 1200px;
+    margin: 20px auto 60px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .detalle-producto {
+        grid-template-columns: 1fr;
+    }
+}
+
+.detalle-imagen img {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #2a2e3d;
+}
+
+.detalle-categoria {
+    display: inline-block;
+    color: var(--primary-cyan);
+    border: 1px solid var(--primary-cyan);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+}
+
+.detalle-info h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.detalle-codigo {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.detalle-precio {
+    font-size: 2rem;
+    color: var(--primary-cyan);
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.detalle-stock {
+    color: #3ddc84;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.detalle-stock.sin-stock {
+    color: #ff5e5e;
+}
+
+.detalle-descripcion {
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.detalle-acciones {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.detalle-acciones label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.detalle-acciones input[type="number"] {
+    width: 70px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid #2a2e3d;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+}
+
+.detalle-acciones .btn-primary {
+    width: auto;
+    padding: 12px 30px;
+}
+
+.detalle-acciones .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.detalle-volver {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.detalle-volver:hover {
+    color: var(--primary-cyan);
+}
+
+.detalle-no-encontrado {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.detalle-no-encontrado h2 {
+    margin-bottom: 10px;
+}
+
+.detalle-no-encontrado p {
+    color: var(--text-muted);
+    margin-bottom: 25px;
+}
+
+.detalle-no-encontrado .btn-primary {
+    display: inline-block;
+    width: auto;
+    padding: 12px 30px;
+}
+
+.relacionados {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+}
+
+.relacionados h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
 /* Footer */
 footer {
     text-align: center;
