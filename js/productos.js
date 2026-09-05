@@ -276,6 +276,522 @@ function agregarAlCarrito(id, cantidad = 1) {
     }
 }
 
+// Lee el carrito desde localStorage de forma segura
+function obtenerCarrito() {
+    try {
+        return JSON.parse(localStorage.getItem('carrito')) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+// Guarda el carrito y refresca el contador del navbar
+function guardarCarrito(carrito) {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    actualizarContadorCarrito();
+}
+
+function calcularTotalCarrito(carrito) {
+    return carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+}
+
+// Suma o resta una unidad a un producto del carrito, respetando el stock actual
+function cambiarCantidadCarrito(id, delta) {
+    const carrito = obtenerCarrito();
+    const item = carrito.find(i => i.id === id);
+    if (!item) return;
+
+    const productoActual = obtenerProductoPorId(id);
+    const stockMax = productoActual ? productoActual.stock : item.stock;
+
+    item.cantidad = Math.min(Math.max(item.cantidad + delta, 1), Math.max(stockMax, 1));
+    guardarCarrito(carrito);
+    renderizarCarrito();
+}
+
+function eliminarDelCarrito(id) {
+    const carrito = obtenerCarrito().filter(i => i.id !== id);
+    guardarCarrito(carrito);
+    renderizarCarrito();
+}
+
+function vaciarCarrito() {
+    if (!confirm('¿Vaciar todo el carrito?')) return;
+    guardarCarrito([]);
+    renderizarCarrito();
+}
+
+// Pinta la lista de productos del carrito y el resumen de compra en carrito.html
+function renderizarCarrito() {
+    const contenedor = document.getElementById('carrito-items');
+    const resumen = document.getElementById('carrito-resumen');
+    if (!contenedor) return; // No estamos en carrito.html
+
+    const carrito = obtenerCarrito();
+
+    if (carrito.length === 0) {
+        contenedor.innerHTML = `
+            <div class="carrito-vacio">
+                <h2>Tu carrito está vacío</h2>
+                <p>Agrega productos desde el catálogo para verlos aquí.</p>
+                <a href="productos.html" class="btn-primary">Ir al catálogo</a>
+            </div>
+        `;
+        if (resumen) resumen.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+    carrito.forEach(item => {
+        const nombreSeguro = escaparHTML(item.nombre);
+        const categoriaSegura = escaparHTML(item.categoria);
+        const subtotal = item.precio * item.cantidad;
+        const productoActual = obtenerProductoPorId(item.id);
+        const stockMax = productoActual ? productoActual.stock : item.stock;
+
+        html += `
+            <div class="carrito-item">
+                <img src="${item.imagen}" alt="${nombreSeguro}" data-nombre="${nombreSeguro}" data-categoria="${categoriaSegura}" onerror="mostrarPlaceholder(this)">
+                <div class="carrito-item-info">
+                    <h3>${nombreSeguro}</h3>
+                    <p class="carrito-item-precio">$${item.precio.toLocaleString('es-CL')} c/u</p>
+                </div>
+                <div class="carrito-item-cantidad">
+                    <button type="button" class="btn-cantidad" onclick="cambiarCantidadCarrito(${item.id}, -1)" aria-label="Restar unidad">-</button>
+                    <span>${item.cantidad}</span>
+                    <button type="button" class="btn-cantidad" onclick="cambiarCantidadCarrito(${item.id}, 1)" aria-label="Sumar unidad" ${item.cantidad >= stockMax ? 'disabled' : ''}>+</button>
+                </div>
+                <p class="carrito-item-subtotal">$${subtotal.toLocaleString('es-CL')}</p>
+                <button type="button" class="btn-eliminar" onclick="eliminarDelCarrito(${item.id})" aria-label="Eliminar producto">✕</button>
+            </div>
+        `;
+    });
+
+    contenedor.innerHTML = html;
+
+    const total = calcularTotalCarrito(carrito);
+    if (resumen) {
+        resumen.innerHTML = `
+            <h2>Resumen del pedido</h2>
+            <div class="resumen-linea">
+                <span>Subtotal</span>
+                <span>$${total.toLocaleString('es-CL')}</span>
+            </div>
+            <div class="resumen-linea resumen-total">
+                <span>Total</span>
+                <span>$${total.toLocaleString('es-CL')}</span>
+            </div>
+            <button type="button" class="btn-primary" id="btn-pagar">Proceder al pago</button>
+            <button type="button" class="btn-vaciar" id="btn-vaciar-carrito">Vaciar carrito</button>
+        `;
+
+        document.getElementById('btn-pagar')?.addEventListener('click', () => {
+            alert('¡Gracias por tu compra! (función de pago próximamente)');
+        });
+        document.getElementById('btn-vaciar-carrito')?.addEventListener('click', vaciarCarrito);
+    }
+}
+
+// ===== Panel de Administración de Productos (admin-productos.html) =====
+
+// Guarda la lista completa de productos en localStorage
+function guardarProductos(lista) {
+    localStorage.setItem('productosDB', JSON.stringify(lista));
+}
+
+// Genera el próximo id disponible (máximo id actual + 1)
+function generarNuevoId(lista) {
+    return lista.length ? Math.max(...lista.map(p => p.id)) + 1 : 1;
+}
+
+// Llena el <datalist> de categorías del formulario de admin (sugerencias, no restringe)
+function poblarCategoriasDatalist() {
+    const datalist = document.getElementById('lista-categorias');
+    if (!datalist) return;
+
+    const categorias = [...new Set(obtenerProductos().map(p => p.categoria))].sort();
+    datalist.innerHTML = categorias.map(cat => `<option value="${escaparHTML(cat)}">`).join('');
+}
+
+function limpiarErroresFormulario() {
+    document.querySelectorAll('#form-producto .campo-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('#form-producto .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+}
+
+function mostrarErrorCampo(idCampo, mensaje) {
+    const input = document.getElementById(idCampo);
+    const error = document.getElementById(`error-${idCampo}`);
+    if (input) input.classList.add('is-invalid');
+    if (error) error.textContent = mensaje;
+}
+
+// Valida los campos del formulario de producto; retorna el objeto de datos
+// listo para guardar, o null si hay errores (y muestra los mensajes en pantalla)
+function validarFormularioProducto(idEditando) {
+    limpiarErroresFormulario();
+
+    const nombre = document.getElementById('input-nombre').value.trim();
+    const codigo = document.getElementById('input-codigo').value.trim();
+    const categoria = document.getElementById('input-categoria').value.trim();
+    const precio = parseFloat(document.getElementById('input-precio').value);
+    const stock = parseInt(document.getElementById('input-stock').value, 10);
+    const imagen = document.getElementById('input-imagen').value.trim();
+    const descripcion = document.getElementById('input-descripcion').value.trim();
+
+    let valido = true;
+    const lista = obtenerProductos();
+
+    if (nombre.length < 3) {
+        mostrarErrorCampo('input-nombre', 'El nombre debe tener al menos 3 caracteres.');
+        valido = false;
+    }
+
+    if (codigo.length < 3) {
+        mostrarErrorCampo('input-codigo', 'El código debe tener al menos 3 caracteres.');
+        valido = false;
+    } else {
+        const codigoDuplicado = lista.some(p =>
+            p.codigo.toLowerCase() === codigo.toLowerCase() && p.id !== idEditando
+        );
+        if (codigoDuplicado) {
+            mostrarErrorCampo('input-codigo', 'Ya existe un producto con este código.');
+            valido = false;
+        }
+    }
+
+    if (!categoria) {
+        mostrarErrorCampo('input-categoria', 'Escribe o selecciona una categoría.');
+        valido = false;
+    }
+
+    if (isNaN(precio) || precio <= 0) {
+        mostrarErrorCampo('input-precio', 'El precio debe ser un número mayor a 0.');
+        valido = false;
+    }
+
+    if (isNaN(stock) || stock < 0) {
+        mostrarErrorCampo('input-stock', 'El stock debe ser 0 o un número positivo.');
+        valido = false;
+    }
+
+    if (!valido) return null;
+
+    return {
+        nombre,
+        codigo,
+        categoria,
+        precio,
+        stock,
+        imagen: imagen || '',
+        descripcion: descripcion || 'Sin descripción disponible por el momento.'
+    };
+}
+
+// Abre el modal de producto. Sin id = modo "crear"; con id = modo "editar"
+function abrirFormularioProducto(id = null) {
+    const form = document.getElementById('form-producto');
+    if (!form) return;
+
+    limpiarErroresFormulario();
+    form.reset();
+    document.getElementById('input-id-editando').value = '';
+
+    const modalTitulo = document.getElementById('modal-producto-titulo');
+
+    if (id !== null) {
+        const producto = obtenerProductoPorId(id);
+        if (!producto) return;
+
+        if (modalTitulo) modalTitulo.textContent = 'Editar Producto';
+        document.getElementById('input-id-editando').value = producto.id;
+        document.getElementById('input-nombre').value = producto.nombre;
+        document.getElementById('input-codigo').value = producto.codigo;
+        document.getElementById('input-categoria').value = producto.categoria;
+        document.getElementById('input-precio').value = producto.precio;
+        document.getElementById('input-stock').value = producto.stock;
+        document.getElementById('input-imagen').value = producto.imagen;
+        document.getElementById('input-descripcion').value = producto.descripcion || '';
+    } else if (modalTitulo) {
+        modalTitulo.textContent = 'Agregar Producto';
+    }
+
+    const modalEl = document.getElementById('modal-producto');
+    if (modalEl && window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+}
+
+// Procesa el submit del formulario: crea o actualiza según input-id-editando
+function manejarSubmitFormularioProducto(event) {
+    event.preventDefault();
+
+    const idEditandoRaw = document.getElementById('input-id-editando').value;
+    const idEditando = idEditandoRaw ? Number(idEditandoRaw) : null;
+
+    const datos = validarFormularioProducto(idEditando);
+    if (!datos) return;
+
+    const lista = obtenerProductos();
+
+    if (idEditando !== null) {
+        const index = lista.findIndex(p => p.id === idEditando);
+        if (index !== -1) lista[index] = { ...lista[index], ...datos };
+    } else {
+        lista.push({ id: generarNuevoId(lista), ...datos });
+    }
+
+    guardarProductos(lista);
+    renderizarTablaAdmin();
+    poblarCategoriasDatalist();
+
+    const modalEl = document.getElementById('modal-producto');
+    if (modalEl && window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    }
+}
+
+// Elimina un producto tras confirmar
+function eliminarProducto(id) {
+    const producto = obtenerProductoPorId(id);
+    if (!producto) return;
+    if (!confirm(`¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`)) return;
+
+    const lista = obtenerProductos().filter(p => p.id !== id);
+    guardarProductos(lista);
+    renderizarTablaAdmin();
+    poblarCategoriasDatalist();
+}
+
+// Reemplaza el catálogo actual por los 12 productos originales de fábrica
+function restablecerCatalogo() {
+    if (!confirm('Esto reemplazará todos los productos actuales por el catálogo original. ¿Continuar?')) return;
+
+    guardarProductos(JSON.parse(JSON.stringify(productosIniciales)));
+    renderizarTablaAdmin();
+    poblarCategoriasDatalist();
+}
+
+// Pinta la tabla de administración con todos los productos guardados
+function renderizarTablaAdmin() {
+    const tbody = document.getElementById('admin-tabla-productos');
+    if (!tbody) return; // No estamos en admin-productos.html
+
+    const lista = obtenerProductos();
+
+    if (lista.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="sin-resultados">No hay productos cargados.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = lista.map(prod => {
+        const nombreSeguro = escaparHTML(prod.nombre);
+        const categoriaSegura = escaparHTML(prod.categoria);
+        const codigoSeguro = escaparHTML(prod.codigo);
+
+        return `
+            <tr>
+                <td><img class="admin-thumb" src="${prod.imagen}" alt="${nombreSeguro}" data-nombre="${nombreSeguro}" data-categoria="${categoriaSegura}" onerror="mostrarPlaceholder(this)"></td>
+                <td>${codigoSeguro}</td>
+                <td>${nombreSeguro}</td>
+                <td>${categoriaSegura}</td>
+                <td>$${prod.precio.toLocaleString('es-CL')}</td>
+                <td class="${prod.stock <= 0 ? 'admin-stock-bajo' : ''}">${prod.stock}</td>
+                <td class="admin-acciones">
+                    <button type="button" class="btn-admin-editar" onclick="abrirFormularioProducto(${prod.id})">Editar</button>
+                    <button type="button" class="btn-admin-eliminar" onclick="eliminarProducto(${prod.id})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ===== Autenticación (login.html / registro.html) =====
+// Nota: esto corre 100% en el navegador (sin backend), así que el "hash" de
+// abajo es solo una ofuscación simple para no guardar contraseñas en texto
+// plano en localStorage. No reemplaza un hash criptográfico real (bcrypt,
+// argon2, etc.) que se usaría en un servidor de verdad.
+function hashSimple(texto) {
+    let hash = 0;
+    const str = String(texto);
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 31 + str.charCodeAt(i)) | 0; // hash de 32 bits
+    }
+    return (hash >>> 0).toString(16) + '_' + str.length;
+}
+
+// Crea el usuario administrador de prueba la primera vez que se carga el sitio
+// (admin@prosetup.cl / admin123)
+function inicializarUsuarios() {
+    if (!localStorage.getItem('usuariosDB')) {
+        const admin = {
+            nombre: 'Administrador',
+            email: 'admin@prosetup.cl',
+            passwordHash: hashSimple('admin123'),
+            rol: 'admin'
+        };
+        localStorage.setItem('usuariosDB', JSON.stringify([admin]));
+    }
+}
+
+function obtenerUsuarios() {
+    try {
+        return JSON.parse(localStorage.getItem('usuariosDB')) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function guardarUsuarios(lista) {
+    localStorage.setItem('usuariosDB', JSON.stringify(lista));
+}
+
+// La sesión vive en sessionStorage: se cierra sola al cerrar la pestaña/navegador
+function obtenerUsuarioActual() {
+    try {
+        return JSON.parse(sessionStorage.getItem('usuarioActual'));
+    } catch (e) {
+        return null;
+    }
+}
+
+function guardarSesion(usuario) {
+    const { passwordHash, ...usuarioSeguro } = usuario; // nunca guardamos el hash en la sesión
+    sessionStorage.setItem('usuarioActual', JSON.stringify(usuarioSeguro));
+}
+
+function cerrarSesion() {
+    sessionStorage.removeItem('usuarioActual');
+    window.location.href = 'index.html';
+}
+
+// Muestra "Hola, {nombre}" + Cerrar sesión (y Admin si corresponde) en el navbar,
+// u oculta esos elementos y muestra Iniciar Sesión/Registro si no hay sesión
+function actualizarNavbarUsuario() {
+    const usuario = obtenerUsuarioActual();
+    const linkLogin = document.getElementById('link-login');
+    const linkRegistro = document.getElementById('link-registro');
+    const usuarioInfo = document.getElementById('usuario-info');
+    const usuarioNombre = document.getElementById('usuario-nombre');
+    const linkAdmin = document.getElementById('link-admin');
+
+    if (usuario) {
+        if (linkLogin) linkLogin.style.display = 'none';
+        if (linkRegistro) linkRegistro.style.display = 'none';
+        if (usuarioInfo) usuarioInfo.style.display = 'flex';
+        if (usuarioNombre) usuarioNombre.textContent = usuario.nombre;
+        if (linkAdmin) linkAdmin.style.display = usuario.rol === 'admin' ? 'inline' : 'none';
+    } else {
+        if (linkLogin) linkLogin.style.display = '';
+        if (linkRegistro) linkRegistro.style.display = '';
+        if (usuarioInfo) usuarioInfo.style.display = 'none';
+    }
+}
+
+// Bloquea el acceso a admin-productos.html si no hay sesión de administrador
+function protegerPaginaAdmin() {
+    const tabla = document.getElementById('admin-tabla-productos');
+    if (!tabla) return; // No estamos en admin-productos.html
+
+    const usuario = obtenerUsuarioActual();
+    if (!usuario || usuario.rol !== 'admin') {
+        alert('Debes iniciar sesión como administrador para acceder a esta página.');
+        window.location.href = 'login.html';
+    }
+}
+
+function limpiarErroresFormularioAuth(formId) {
+    document.querySelectorAll(`#${formId} .campo-error`).forEach(el => el.textContent = '');
+    document.querySelectorAll(`#${formId} .is-invalid`).forEach(el => el.classList.remove('is-invalid'));
+}
+
+function mostrarErrorCampoAuth(idCampo, mensaje) {
+    const input = document.getElementById(idCampo);
+    const error = document.getElementById(`error-${idCampo}`);
+    if (input) input.classList.add('is-invalid');
+    if (error) error.textContent = mensaje;
+}
+
+// Valida y procesa el formulario de registro.html
+function manejarSubmitRegistro(event) {
+    event.preventDefault();
+    limpiarErroresFormularioAuth('form-registro');
+
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const email = document.getElementById('reg-email').value.trim().toLowerCase();
+    const password = document.getElementById('reg-password').value;
+    const confirmar = document.getElementById('reg-confirmar').value;
+
+    let valido = true;
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (nombre.length < 3) {
+        mostrarErrorCampoAuth('reg-nombre', 'Ingresa tu nombre completo.');
+        valido = false;
+    }
+
+    if (!regexEmail.test(email)) {
+        mostrarErrorCampoAuth('reg-email', 'Ingresa un correo válido.');
+        valido = false;
+    } else if (obtenerUsuarios().some(u => u.email === email)) {
+        mostrarErrorCampoAuth('reg-email', 'Ya existe una cuenta con este correo.');
+        valido = false;
+    }
+
+    if (password.length < 6) {
+        mostrarErrorCampoAuth('reg-password', 'La contraseña debe tener al menos 6 caracteres.');
+        valido = false;
+    }
+
+    if (confirmar !== password) {
+        mostrarErrorCampoAuth('reg-confirmar', 'Las contraseñas no coinciden.');
+        valido = false;
+    }
+
+    if (!valido) return;
+
+    const nuevoUsuario = { nombre, email, passwordHash: hashSimple(password), rol: 'cliente' };
+    const usuarios = obtenerUsuarios();
+    usuarios.push(nuevoUsuario);
+    guardarUsuarios(usuarios);
+
+    guardarSesion(nuevoUsuario);
+    window.location.href = 'index.html';
+}
+
+// Valida y procesa el formulario de login.html
+function manejarSubmitLogin(event) {
+    event.preventDefault();
+    limpiarErroresFormularioAuth('form-login');
+
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const password = document.getElementById('login-password').value;
+
+    let valido = true;
+    if (!email) {
+        mostrarErrorCampoAuth('login-email', 'Ingresa tu correo.');
+        valido = false;
+    }
+    if (!password) {
+        mostrarErrorCampoAuth('login-password', 'Ingresa tu contraseña.');
+        valido = false;
+    }
+    if (!valido) return;
+
+    const usuario = obtenerUsuarios().find(u => u.email === email);
+    if (!usuario) {
+        mostrarErrorCampoAuth('login-email', 'No existe una cuenta con este correo.');
+        return;
+    }
+
+    if (hashSimple(password) !== usuario.passwordHash) {
+        mostrarErrorCampoAuth('login-password', 'Contraseña incorrecta.');
+        return;
+    }
+
+    guardarSesion(usuario);
+    window.location.href = usuario.rol === 'admin' ? 'admin-productos.html' : 'index.html';
+}
+
 // Actualizar contador visual del carrito
 function actualizarContadorCarrito() {
     const contador = document.getElementById('cart-count');
@@ -289,17 +805,37 @@ function actualizarContadorCarrito() {
 // Evento de carga segura del DOM
 document.addEventListener('DOMContentLoaded', () => {
     inicializarBaseDeDatos();
+    inicializarUsuarios();
 
     poblarFiltroCategorias();       // Solo hace algo si existe #filtro-categoria (productos.html)
     actualizarCatalogo();            // Ejecuta en productos.html (respeta filtros activos)
     renderizarProductos('destacados-container', 4); // Ejecuta en index.html
     renderizarDetalleProducto();     // Ejecuta en detalle-producto.html
+    renderizarCarrito();             // Ejecuta en carrito.html
+    renderizarTablaAdmin();          // Ejecuta en admin-productos.html
+    poblarCategoriasDatalist();      // Sugerencias de categoría en el form de admin
 
     actualizarContadorCarrito();
+    actualizarNavbarUsuario();       // Muestra "Hola, {nombre}" si hay sesión activa
+    protegerPaginaAdmin();           // Solo deja pasar a admin-productos.html si el rol es admin
 
     // Listeners de la barra de filtros (si existen en la página actual)
     document.getElementById('buscador-productos')?.addEventListener('input', actualizarCatalogo);
     document.getElementById('filtro-categoria')?.addEventListener('change', actualizarCatalogo);
     document.getElementById('filtro-orden')?.addEventListener('change', actualizarCatalogo);
     document.getElementById('btn-limpiar-filtros')?.addEventListener('click', limpiarFiltros);
+
+    // Listeners del panel de administración (si existen en la página actual)
+    document.getElementById('form-producto')?.addEventListener('submit', manejarSubmitFormularioProducto);
+    document.getElementById('btn-nuevo-producto')?.addEventListener('click', () => abrirFormularioProducto());
+    document.getElementById('btn-restablecer-catalogo')?.addEventListener('click', restablecerCatalogo);
+    document.getElementById('modal-producto')?.addEventListener('hidden.bs.modal', limpiarErroresFormulario);
+
+    // Listeners de autenticación (si existen en la página actual)
+    document.getElementById('form-login')?.addEventListener('submit', manejarSubmitLogin);
+    document.getElementById('form-registro')?.addEventListener('submit', manejarSubmitRegistro);
+    document.getElementById('link-logout')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        cerrarSesion();
+    });
 });
