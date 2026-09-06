@@ -1,43 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <title>Document</title>
+    <title>ProSetup - Administración de Usuarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/Style.css">
 </head>
-<body>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="index.html">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="productos.html">Productos</a>
-        </li>
-        <li class="nav-item ">
-          <a class="nav-link " href="nosotros.html" >Nosotros</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " href="blogs.html">Blogs</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " href="contacto.html">Contacto</a>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+<body data-roles-permitidos="admin">
+
+    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/logo2.png" alt="ProSetup" width="80" height="45" class="img-fluid" onerror="this.src='https://via.placeholder.com/80x45?text=PROSETUP'">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="blogs.html">Blogs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contacto</a></li>
+                </ul>
+                <div class="user-actions" id="user-actions">
+                    <a href="login.html" id="link-login">Iniciar Sesión</a>
+                    <a href="registro.html" id="link-registro">Registro</a>
+                    <span class="usuario-info" id="usuario-info" style="display:none;">
+                        Hola, <strong id="usuario-nombre"></strong>
+                        <a href="admin-home.html" id="link-admin" style="display:none;">Panel</a>
+                        <a href="#" id="link-logout">Cerrar sesión</a>
+                    </span>
+                    <a href="carrito.html" class="btn-cart">🛒 (<span id="cart-count">0</span>)</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Submenú de administración -->
+    <nav class="admin-subnav">
+        <a href="admin-home.html">Dashboard</a>
+        <a href="admin-productos.html">Productos</a>
+        <a href="admin-usuarios.html" class="activo solo-admin">Usuarios</a>
+        <a href="admin-ordenes.html">Órdenes</a>
+    </nav>
+
+    <main>
+
+    <section class="admin-header">
+        <div>
+            <h1>Administración de Usuarios</h1>
+            <p>Crea, edita o elimina cuentas y asigna roles (Administrador, Vendedor, Cliente).</p>
+        </div>
+        <button type="button" class="btn-nuevo-producto" id="btn-nuevo-usuario">+ Agregar Usuario</button>
+    </section>
+
+    <section class="admin-tabla-wrapper">
+        <table class="admin-tabla">
+            <thead>
+                <tr>
+                    <th>RUN</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Región</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="admin-tabla-usuarios">
+                <!-- Se rellena con renderizarTablaUsuarios() en js/productos.js -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Modal Crear/Editar Usuario -->
+    <div class="modal fade" id="modal-usuario" tabindex="-1" aria-labelledby="modal-usuario-titulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <form id="form-usuario" novalidate>
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="modal-usuario-titulo">Agregar Usuario</h2>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="input-run-editando">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="input-usuario-run" class="form-label">RUN (sin puntos ni guion)</label>
+                                <input type="text" class="form-control" id="input-usuario-run" placeholder="Ej: 123456785" maxlength="9">
+                                <span class="campo-error" id="error-input-usuario-run"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="input-usuario-rol" class="form-label">Tipo de usuario</label>
+                                <select class="form-select" id="input-usuario-rol">
+                                    <option value="">Selecciona un tipo</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="vendedor">Vendedor</option>
+                                    <option value="cliente">Cliente</option>
+                                </select>
+                                <span class="campo-error" id="error-input-usuario-rol"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="input-usuario-nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="input-usuario-nombre" placeholder="Ej: Benjamín" maxlength="50">
+                                <span class="campo-error" id="error-input-usuario-nombre"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="input-usuario-apellidos" class="form-label">Apellidos</label>
+                                <input type="text" class="form-control" id="input-usuario-apellidos" placeholder="Ej: Soto Pérez" maxlength="100">
+                                <span class="campo-error" id="error-input-usuario-apellidos"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="input-usuario-email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="input-usuario-email" placeholder="correo@duoc.cl" maxlength="100">
+                            <span class="campo-error" id="error-input-usuario-email"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="input-usuario-fecha-nacimiento" class="form-label">Fecha de nacimiento (opcional)</label>
+                            <input type="date" class="form-control" id="input-usuario-fecha-nacimiento">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="input-usuario-region" class="form-label">Región</label>
+                                <select class="form-select" id="input-usuario-region">
+                                    <option value="">Selecciona una región</option>
+                                </select>
+                                <span class="campo-error" id="error-input-usuario-region"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="input-usuario-comuna" class="form-label">Comuna</label>
+                                <select class="form-select" id="input-usuario-comuna">
+                                    <option value="">Selecciona una comuna</option>
+                                </select>
+                                <span class="campo-error" id="error-input-usuario-comuna"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="input-usuario-direccion" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="input-usuario-direccion" placeholder="Calle, número, depto." maxlength="300">
+                            <span class="campo-error" id="error-input-usuario-direccion"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="input-usuario-password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="input-usuario-password" placeholder="Entre 4 y 10 caracteres" maxlength="10">
+                            <span class="campo-error" id="error-input-usuario-password"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancelar-modal" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-guardar-producto">Guardar Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
-</nav>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 PROSETUP - Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/productos.js"></script>
 </body>
 </html>
