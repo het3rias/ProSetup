@@ -4,94 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSetup - Panel de Administración</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/Style.css">
+    <link href="css/vendor/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-roles-permitidos="admin,vendedor">
+<body>
 
-    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="index.html">
-                <img src="img/logo2.png" alt="ProSetup" width="80" height="45" class="img-fluid" onerror="this.src='https://via.placeholder.com/80x45?text=PROSETUP'">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir navegación">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
-                    <li class="nav-item"><a class="nav-link" href="blogs.html">Blogs</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contacto</a></li>
-                </ul>
-                <div class="user-actions" id="user-actions">
-                    <a href="login.html" id="link-login">Iniciar Sesión</a>
-                    <a href="registro.html" id="link-registro">Registro</a>
-                    <span class="usuario-info" id="usuario-info" style="display:none;">
-                        Hola, <strong id="usuario-nombre"></strong>
-                        <a href="admin-home.html" id="link-admin" style="display:none;">Panel</a>
-                        <a href="#" id="link-logout">Cerrar sesión</a>
-                    </span>
-                    <a href="carrito.html" class="btn-cart">🛒 (<span id="cart-count">0</span>)</a>
-                </div>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-title">ProSetup Admin</div>
+            <nav>
+                <a href="admin-home.html" data-pagina="home">🏠 Dashboard</a>
+                <a href="admin-productos.html" data-pagina="productos">📦 Productos</a>
+                <a href="admin-usuarios.html" data-pagina="usuarios" id="admin-nav-usuarios">👤 Usuarios</a>
+            </nav>
+            <div class="admin-sidebar-footer">
+                <a href="index.html">🏬 Ver tienda</a>
+                <a href="#" id="link-logout-admin">🚪 Cerrar sesión</a>
             </div>
+        </aside>
+
+        <div class="admin-content">
+            <header class="admin-topbar">
+                <h1 class="h3 mb-0" id="admin-home-saludo">¡Hola, Administrador!</h1>
+                <span class="badge bg-primary badge-rol">Rol: <span id="admin-rol-badge"></span> · <span id="admin-nombre-usuario"></span></span>
+            </header>
+
+            <main>
+                <section class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card p-3 shadow-sm">
+                            <p class="text-muted mb-1">Productos en catálogo</p>
+                            <p class="display-6 mb-0" id="stat-total-productos">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-3 shadow-sm">
+                            <p class="text-muted mb-1">Productos con stock bajo</p>
+                            <p class="display-6 mb-0 text-warning" id="stat-stock-critico">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 solo-admin">
+                        <div class="card p-3 shadow-sm">
+                            <p class="text-muted mb-1">Usuarios registrados</p>
+                            <p class="display-6 mb-0" id="stat-total-usuarios">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mt-4">
+                    <div class="card p-4 shadow-sm">
+                        <h2 class="h5">Accesos rápidos</h2>
+                        <div class="d-flex gap-2 flex-wrap mt-3">
+                            <a href="admin-productos.html" class="btn btn-primary">Administrar Productos</a>
+                            <a href="admin-usuarios.html" class="btn btn-outline-primary solo-admin">Administrar Usuarios</a>
+                        </div>
+                        <p class="text-muted mt-3 mb-0 small">
+                            Recuerda: el rol <strong>Vendedor</strong> solo puede visualizar el listado y detalle de productos;
+                            no puede crear, editar ni eliminar, y no tiene acceso al mantenedor de usuarios.
+                        </p>
+                    </div>
+                </section>
+            </main>
         </div>
-    </nav>
+    </div>
 
-    <!-- Submenú de administración -->
-    <nav class="admin-subnav">
-        <a href="admin-home.html" class="activo">Dashboard</a>
-        <a href="admin-productos.html">Productos</a>
-        <a href="admin-usuarios.html" class="solo-admin">Usuarios</a>
-        <a href="admin-ordenes.html">Órdenes</a>
-    </nav>
-
-    <main>
-
-    <section class="admin-dashboard">
-        <h1>¡Hola, <span id="admin-nombre-dashboard">Administrador</span>!</h1>
-        <p class="admin-saludo-sub">Este es el panel de administración de ProSetup.</p>
-
-        <div class="admin-stats-grid">
-            <div class="admin-stat-card">
-                <span class="admin-stat-numero" id="stat-productos">0</span>
-                <span class="admin-stat-label">Productos en catálogo</span>
-            </div>
-            <div class="admin-stat-card solo-admin">
-                <span class="admin-stat-numero" id="stat-usuarios">0</span>
-                <span class="admin-stat-label">Usuarios registrados</span>
-            </div>
-            <div class="admin-stat-card">
-                <span class="admin-stat-numero" id="stat-ordenes">0</span>
-                <span class="admin-stat-label">Órdenes recibidas</span>
-            </div>
-            <div class="admin-stat-card">
-                <span class="admin-stat-numero" id="stat-stock-bajo">0</span>
-                <span class="admin-stat-label">Productos con stock bajo</span>
-            </div>
-        </div>
-    </section>
-
-    </main>
-
-    <footer>
-        <p>&copy; 2026 PROSETUP - Todos los derechos reservados.</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="js/regiones.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/productos.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const usuario = obtenerUsuarioActual();
-            if (usuario) {
-                document.getElementById('admin-nombre-dashboard').textContent = usuario.nombre;
-            }
-            document.getElementById('stat-productos').textContent = obtenerProductos().length;
-            document.getElementById('stat-usuarios').textContent = obtenerUsuarios().length;
-            document.getElementById('stat-ordenes').textContent = obtenerOrdenes().length;
-            document.getElementById('stat-stock-bajo').textContent = obtenerProductos().filter(p => p.stock <= 5).length;
-        });
-    </script>
+    <script src="js/admin.js"></script>
 </body>
 </html>

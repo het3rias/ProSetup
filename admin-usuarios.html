@@ -3,177 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProSetup - Administración de Usuarios</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/Style.css">
+    <title>ProSetup - Administrar Usuarios</title>
+    <link href="css/vendor/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-roles-permitidos="admin">
+<body>
 
-    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="index.html">
-                <img src="img/logo2.png" alt="ProSetup" width="80" height="45" class="img-fluid" onerror="this.src='https://via.placeholder.com/80x45?text=PROSETUP'">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir navegación">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
-                    <li class="nav-item"><a class="nav-link" href="blogs.html">Blogs</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contacto.html">Contacto</a></li>
-                </ul>
-                <div class="user-actions" id="user-actions">
-                    <a href="login.html" id="link-login">Iniciar Sesión</a>
-                    <a href="registro.html" id="link-registro">Registro</a>
-                    <span class="usuario-info" id="usuario-info" style="display:none;">
-                        Hola, <strong id="usuario-nombre"></strong>
-                        <a href="admin-home.html" id="link-admin" style="display:none;">Panel</a>
-                        <a href="#" id="link-logout">Cerrar sesión</a>
-                    </span>
-                    <a href="carrito.html" class="btn-cart">🛒 (<span id="cart-count">0</span>)</a>
-                </div>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-title">ProSetup Admin</div>
+            <nav>
+                <a href="admin-home.html" data-pagina="home">🏠 Dashboard</a>
+                <a href="admin-productos.html" data-pagina="productos">📦 Productos</a>
+                <a href="admin-usuarios.html" data-pagina="usuarios" id="admin-nav-usuarios">👤 Usuarios</a>
+            </nav>
+            <div class="admin-sidebar-footer">
+                <a href="index.html">🏬 Ver tienda</a>
+                <a href="#" id="link-logout-admin">🚪 Cerrar sesión</a>
             </div>
+        </aside>
+
+        <div class="admin-content">
+            <header class="admin-topbar">
+                <h1 class="h3 mb-0">Administrar Usuarios</h1>
+                <span class="badge bg-primary badge-rol">Rol: <span id="admin-rol-badge"></span> · <span id="admin-nombre-usuario"></span></span>
+            </header>
+
+            <main>
+                <div class="row">
+                    <!-- Formulario nuevo/editar usuario -->
+                    <section class="col-lg-5 mb-4">
+                        <div class="card p-3">
+                            <h2 class="h5" id="titulo-formulario-usuario">Nuevo Usuario</h2>
+                            <p class="text-muted small d-none" id="aviso-password-opcional">Deja la contraseña en blanco si no quieres cambiarla.</p>
+
+                            <form id="form-admin-usuario" novalidate>
+                                <input type="hidden" id="admin-u-email-original">
+
+                                <div class="mb-2">
+                                    <label for="admin-u-run" class="form-label">RUN</label>
+                                    <input type="text" class="form-control" id="admin-u-run" maxlength="9" placeholder="Sin puntos ni guion, ej: 19011022K">
+                                    <div class="error-mensaje" id="error-u-run"></div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-nombre" class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="admin-u-nombre" maxlength="50">
+                                        <div class="error-mensaje" id="error-u-nombre"></div>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-apellidos" class="form-label">Apellidos</label>
+                                        <input type="text" class="form-control" id="admin-u-apellidos" maxlength="100">
+                                        <div class="error-mensaje" id="error-u-apellidos"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="admin-u-email" class="form-label">Correo</label>
+                                    <input type="email" class="form-control" id="admin-u-email" maxlength="100">
+                                    <div class="error-mensaje" id="error-u-email"></div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-password" class="form-label">Contraseña</label>
+                                        <input type="password" class="form-control" id="admin-u-password" minlength="4" maxlength="10">
+                                        <div class="error-mensaje" id="error-u-password"></div>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-confirmar" class="form-label">Confirmar</label>
+                                        <input type="password" class="form-control" id="admin-u-confirmar" minlength="4" maxlength="10">
+                                        <div class="error-mensaje" id="error-u-confirmar"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-telefono" class="form-label">Teléfono (opcional)</label>
+                                        <input type="tel" class="form-control" id="admin-u-telefono">
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-fecha-nacimiento" class="form-label">Fecha nacimiento (opcional)</label>
+                                        <input type="date" class="form-control" id="admin-u-fecha-nacimiento">
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label for="admin-u-tipo" class="form-label">Tipo de usuario</label>
+                                    <select class="form-select" id="admin-u-tipo">
+                                        <option value="Cliente">Cliente</option>
+                                        <option value="Vendedor">Vendedor</option>
+                                        <option value="Administrador">Administrador</option>
+                                    </select>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-region" class="form-label">Región</label>
+                                        <select class="form-select" id="admin-u-region">
+                                            <option value="">-- Seleccione la región --</option>
+                                        </select>
+                                        <div class="error-mensaje" id="error-u-region"></div>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label for="admin-u-comuna" class="form-label">Comuna</label>
+                                        <select class="form-select" id="admin-u-comuna">
+                                            <option value="">-- Seleccione la comuna --</option>
+                                        </select>
+                                        <div class="error-mensaje" id="error-u-comuna"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="admin-u-direccion" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="admin-u-direccion" maxlength="300">
+                                    <div class="error-mensaje" id="error-u-direccion"></div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                                <button type="button" class="btn btn-outline-secondary w-100 mt-2" id="btn-cancelar-edicion-usuario">Cancelar</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Listado de usuarios -->
+                    <section class="col-lg-7">
+                        <div class="table-responsive">
+                            <table class="table table-bordered bg-white align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>RUN</th>
+                                        <th>Nombre</th>
+                                        <th>Correo</th>
+                                        <th>Tipo</th>
+                                        <th>Región / Comuna</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-usuarios"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </main>
         </div>
-    </nav>
+    </div>
 
-    <!-- Submenú de administración -->
-    <nav class="admin-subnav">
-        <a href="admin-home.html">Dashboard</a>
-        <a href="admin-productos.html">Productos</a>
-        <a href="admin-usuarios.html" class="activo solo-admin">Usuarios</a>
-        <a href="admin-ordenes.html">Órdenes</a>
-    </nav>
-
-    <main>
-
-    <section class="admin-header">
-        <div>
-            <h1>Administración de Usuarios</h1>
-            <p>Crea, edita o elimina cuentas y asigna roles (Administrador, Vendedor, Cliente).</p>
-        </div>
-        <button type="button" class="btn-nuevo-producto" id="btn-nuevo-usuario">+ Agregar Usuario</button>
-    </section>
-
-    <section class="admin-tabla-wrapper">
-        <table class="admin-tabla">
-            <thead>
-                <tr>
-                    <th>RUN</th>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Región</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="admin-tabla-usuarios">
-                <!-- Se rellena con renderizarTablaUsuarios() en js/productos.js -->
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Modal Crear/Editar Usuario -->
-    <div class="modal fade" id="modal-usuario" tabindex="-1" aria-labelledby="modal-usuario-titulo" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+    <!-- Modal: Mostrar Usuario -->
+    <div class="modal fade" id="modal-usuario" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <form id="form-usuario" novalidate>
-                    <div class="modal-header">
-                        <h2 class="modal-title h5" id="modal-usuario-titulo">Agregar Usuario</h2>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="input-run-editando">
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="input-usuario-run" class="form-label">RUN (sin puntos ni guion)</label>
-                                <input type="text" class="form-control" id="input-usuario-run" placeholder="Ej: 123456785" maxlength="9">
-                                <span class="campo-error" id="error-input-usuario-run"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="input-usuario-rol" class="form-label">Tipo de usuario</label>
-                                <select class="form-select" id="input-usuario-rol">
-                                    <option value="">Selecciona un tipo</option>
-                                    <option value="admin">Administrador</option>
-                                    <option value="vendedor">Vendedor</option>
-                                    <option value="cliente">Cliente</option>
-                                </select>
-                                <span class="campo-error" id="error-input-usuario-rol"></span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="input-usuario-nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="input-usuario-nombre" placeholder="Ej: Benjamín" maxlength="50">
-                                <span class="campo-error" id="error-input-usuario-nombre"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="input-usuario-apellidos" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="input-usuario-apellidos" placeholder="Ej: Soto Pérez" maxlength="100">
-                                <span class="campo-error" id="error-input-usuario-apellidos"></span>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="input-usuario-email" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="input-usuario-email" placeholder="correo@duoc.cl" maxlength="100">
-                            <span class="campo-error" id="error-input-usuario-email"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="input-usuario-fecha-nacimiento" class="form-label">Fecha de nacimiento (opcional)</label>
-                            <input type="date" class="form-control" id="input-usuario-fecha-nacimiento">
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="input-usuario-region" class="form-label">Región</label>
-                                <select class="form-select" id="input-usuario-region">
-                                    <option value="">Selecciona una región</option>
-                                </select>
-                                <span class="campo-error" id="error-input-usuario-region"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="input-usuario-comuna" class="form-label">Comuna</label>
-                                <select class="form-select" id="input-usuario-comuna">
-                                    <option value="">Selecciona una comuna</option>
-                                </select>
-                                <span class="campo-error" id="error-input-usuario-comuna"></span>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="input-usuario-direccion" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="input-usuario-direccion" placeholder="Calle, número, depto." maxlength="300">
-                            <span class="campo-error" id="error-input-usuario-direccion"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="input-usuario-password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="input-usuario-password" placeholder="Entre 4 y 10 caracteres" maxlength="10">
-                            <span class="campo-error" id="error-input-usuario-password"></span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-cancelar-modal" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn-guardar-producto">Guardar Usuario</button>
-                    </div>
-                </form>
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modal-usuario-contenido"></div>
             </div>
         </div>
     </div>
 
-    </main>
-
-    <footer>
-        <p>&copy; 2026 PROSETUP - Todos los derechos reservados.</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="js/regiones.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/productos.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>

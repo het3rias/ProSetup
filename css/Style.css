@@ -1,9 +1,14 @@
-
+/* ============================================
+   ProSetup - Estilos personalizados
+   La mayoría del diseño viene de Bootstrap.
+   Aquí solo ajustamos colores y detalles chicos.
+   ============================================ */
 
 body {
     background-color: #f4f6f8;
 }
 
+/* Navbar oscuro con acento celeste */
 .navbar {
     background-color: #1c1f2b;
 }
@@ -21,7 +26,7 @@ body {
     color: #22c1dc;
 }
 
-
+/* Botón del carrito en el navbar */
 .btn-cart {
     background-color: #22c1dc;
     color: #000 !important;
@@ -31,6 +36,7 @@ body {
     font-weight: bold;
 }
 
+/* Hero de la página de inicio */
 .hero {
     background-color: #1c1f2b;
     color: white;
@@ -42,7 +48,7 @@ body {
     font-weight: bold;
 }
 
-
+/* Tarjetas de producto: le damos un toque simple encima de Bootstrap */
 .card-producto img {
     height: 180px;
     object-fit: cover;
@@ -54,7 +60,7 @@ body {
     font-size: 1.2rem;
 }
 
-
+/* Footer */
 footer {
     background-color: #1c1f2b;
     color: #aaa;
@@ -63,8 +69,90 @@ footer {
     margin-top: 40px;
 }
 
-
+/* Mensajes de error de los formularios */
 .error-mensaje {
     color: #dc3545;
     font-size: 0.875rem;
+}
+
+/* ============================================
+   Panel de Administración: menú lateral vertical
+   (Requisito: "el diseño del administrador es libre,
+   pero debe tener un menú visible")
+   ============================================ */
+.admin-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-height: calc(100vh - 56px);
+}
+
+.admin-sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    background-color: #171a24;
+    color: #d9dbe1;
+    min-height: calc(100vh - 56px);
+    padding: 1.5rem 0;
+    position: sticky;
+    top: 0;
+}
+
+.admin-sidebar .admin-sidebar-title {
+    padding: 0 1.25rem 1rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #8890a4;
+}
+
+.admin-sidebar nav a {
+    display: block;
+    padding: 0.65rem 1.25rem;
+    color: #d9dbe1;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+.admin-sidebar nav a:hover {
+    background-color: #232838;
+}
+
+.admin-sidebar nav a.activo {
+    background-color: #232838;
+    border-left-color: #22c1dc;
+    color: #22c1dc;
+    font-weight: 600;
+}
+
+.admin-sidebar .admin-sidebar-footer {
+    margin-top: 2rem;
+    border-top: 1px solid #2a2f40;
+    padding-top: 1rem;
+}
+
+.admin-content {
+    flex: 1;
+    padding: 2rem;
+    min-width: 0;
+}
+
+.admin-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.badge-rol {
+    font-size: 0.85rem;
+}
+
+@media (max-width: 767px) {
+    .admin-layout { flex-direction: column; }
+    .admin-sidebar { width: 100%; position: static; min-height: auto; }
+    .admin-content { padding: 1.25rem; }
 }

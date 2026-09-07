@@ -1,14 +1,22 @@
+/* ============================================
+   ProSetup - Catálogo, detalle de producto y carrito
+   Todo se guarda en localStorage (no hay servidor).
+   ============================================ */
 
+// Categorías disponibles para el select del mantenedor y no solo texto libre
+const CATEGORIAS_PRODUCTO = ["Perifericos", "Audio", "Monitores", "Accesorios", "Componentes", "Sillas y Mobiliario"];
 
 // Lista de productos con la que arranca el sitio la primera vez.
 // Si ya existen productos guardados en localStorage, no se pisan.
+// Campos: codigo (código interno del producto), nombre, descripcion,
+// precio, stock, stockCritico (umbral para alertar bajo stock), categoria, imagen.
 const productosIniciales = [
-    { id: 1, nombre: "Teclado Mecánico RGB", precio: 45990, stock: 15, categoria: "Perifericos", imagen: "img/teclado.jpg" },
-    { id: 2, nombre: "Mouse Gamer 16000 DPI", precio: 29990, stock: 20, categoria: "Perifericos", imagen: "img/mouse.jpg" },
-    { id: 3, nombre: "Audífonos Gaming 7.1", precio: 38990, stock: 12, categoria: "Audio", imagen: "img/placeholder.png" },
-    { id: 4, nombre: "Monitor Gamer 24\" 144Hz", precio: 149990, stock: 8, categoria: "Monitores", imagen: "img/placeholder.png" },
-    { id: 5, nombre: "Mousepad XL RGB", precio: 14990, stock: 30, categoria: "Accesorios", imagen: "img/placeholder.png" },
-    { id: 6, nombre: "Webcam Full HD 1080p", precio: 35990, stock: 14, categoria: "Accesorios", imagen: "img/placeholder.png" }
+    { id: 1, codigo: "TEC-001", nombre: "Teclado Mecánico RGB", descripcion: "Teclado mecánico con switches rojos e iluminación RGB personalizable.", precio: 45990, stock: 15, stockCritico: 5, categoria: "Perifericos", imagen: "img/teclado.jpg" },
+    { id: 2, codigo: "MOU-001", nombre: "Mouse Gamer 16000 DPI", descripcion: "Mouse óptico gamer de alta precisión, sensor de 16000 DPI ajustable.", precio: 29990, stock: 20, stockCritico: 5, categoria: "Perifericos", imagen: "img/mouse.jpg" },
+    { id: 3, codigo: "AUD-001", nombre: "Audífonos Gaming 7.1", descripcion: "Audífonos con sonido envolvente 7.1 y micrófono desmontable.", precio: 38990, stock: 12, stockCritico: 4, categoria: "Audio", imagen: "img/placeholder.png" },
+    { id: 4, codigo: "MON-001", nombre: "Monitor Gamer 24\" 144Hz", descripcion: "Monitor Full HD de 24 pulgadas con tasa de refresco de 144Hz.", precio: 149990, stock: 8, stockCritico: 3, categoria: "Monitores", imagen: "img/placeholder.png" },
+    { id: 5, codigo: "ACC-001", nombre: "Mousepad XL RGB", descripcion: "Mousepad extendido con borde iluminado RGB.", precio: 14990, stock: 30, stockCritico: 8, categoria: "Accesorios", imagen: "img/placeholder.png" },
+    { id: 6, codigo: "ACC-002", nombre: "Webcam Full HD 1080p", descripcion: "Webcam con resolución 1080p y corrección automática de luz.", precio: 35990, stock: 14, stockCritico: 4, categoria: "Accesorios", imagen: "img/placeholder.png" }
 ];
 
 // Si es la primera vez que se abre el sitio, guardamos los productos base
@@ -30,6 +38,12 @@ function obtenerProductoPorId(id) {
     return obtenerProductos().find(p => p.id === id);
 }
 
+// Devuelve true si el stock ya llegó al umbral crítico definido para el producto
+function tieneStockCritico(producto) {
+    return producto.stockCritico != null && producto.stockCritico !== "" &&
+        Number(producto.stock) <= Number(producto.stockCritico);
+}
+
 // Dibuja tarjetas de producto dentro de un contenedor (usa Bootstrap "card")
 function renderizarProductos(idContenedor, limite) {
     const contenedor = document.getElementById(idContenedor);
@@ -43,13 +57,15 @@ function renderizarProductos(idContenedor, limite) {
     let html = "";
     productos.forEach(prod => {
         html += `
-            <div class="col-md-4 col-lg-3 mb-4">
+            <article class="col-md-4 col-lg-3 mb-4">
                 <div class="card card-producto h-100">
                     <img src="${prod.imagen}" class="card-img-top" alt="${prod.nombre}"
                          onerror="this.src='img/placeholder.png'">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">${prod.nombre}</h5>
+                        <p class="text-muted small mb-1">${prod.categoria}</p>
                         <p class="precio">$${prod.precio.toLocaleString("es-CL")}</p>
+                        ${tieneStockCritico(prod) ? '<p class="badge bg-warning text-dark mb-2">¡Stock bajo!</p>' : ""}
                         <button class="btn btn-primary mt-auto mb-2" onclick="agregarAlCarrito(${prod.id})">
                             Añadir al Carrito
                         </button>
@@ -58,7 +74,7 @@ function renderizarProductos(idContenedor, limite) {
                         </a>
                     </div>
                 </div>
-            </div>
+            </article>
         `;
     });
 
@@ -93,11 +109,19 @@ function renderizarDetalleProducto() {
                  onerror="this.src='img/placeholder.png'">
         </div>
         <div class="col-md-6">
+            <p class="text-muted mb-1">Código: ${producto.codigo}</p>
             <h1>${producto.nombre}</h1>
             <p class="text-muted">Categoría: ${producto.categoria}</p>
             <p class="precio fs-3">$${producto.precio.toLocaleString("es-CL")}</p>
-            <p>Stock disponible: ${producto.stock} unidades</p>
-            <button class="btn btn-primary btn-lg" onclick="agregarAlCarrito(${producto.id})">
+            <p>${producto.descripcion || "Sin descripción disponible."}</p>
+            <p>Stock disponible: ${producto.stock} unidades
+                ${tieneStockCritico(producto) ? '<span class="badge bg-warning text-dark">¡Stock bajo!</span>' : ""}
+            </p>
+            <div class="mb-3" style="max-width: 140px;">
+                <label for="detalle-cantidad" class="form-label">Cantidad</label>
+                <input type="number" id="detalle-cantidad" class="form-control" value="1" min="1" max="${Math.max(producto.stock, 1)}">
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="agregarAlCarrito(${producto.id}, Number(document.getElementById('detalle-cantidad').value) || 1)">
                 Añadir al Carrito
             </button>
         </div>
@@ -115,7 +139,7 @@ function guardarCarrito(carrito) {
     actualizarContadorCarrito();
 }
 
-function agregarAlCarrito(id) {
+function agregarAlCarrito(id, cantidad = 1) {
     const producto = obtenerProductoPorId(id);
     if (!producto) return;
 
@@ -123,9 +147,9 @@ function agregarAlCarrito(id) {
     const itemExistente = carrito.find(item => item.id === id);
 
     if (itemExistente) {
-        itemExistente.cantidad += 1;
+        itemExistente.cantidad += cantidad;
     } else {
-        carrito.push({ ...producto, cantidad: 1 });
+        carrito.push({ ...producto, cantidad });
     }
 
     guardarCarrito(carrito);
