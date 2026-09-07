@@ -3,54 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProSetup - Detalle de Blog</title>
+    <title>ProSetup - Cómo elegir tu primer teclado mecánico</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/Style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="index.html">
-                <img src="img/logo2.png" alt="ProSetup" width="80" height="45" class="img-fluid" onerror="this.src='https://via.placeholder.com/80x45?text=PROSETUP'">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir navegación">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">ProSetup</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="blogs.html">Blogs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="blogs.html">Blogs</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contacto</a></li>
                 </ul>
-                <div class="user-actions" id="user-actions">
-                    <a href="login.html" id="link-login">Iniciar Sesión</a>
-                    <a href="registro.html" id="link-registro">Registro</a>
-                    <span class="usuario-info" id="usuario-info" style="display:none;">
-                        Hola, <strong id="usuario-nombre"></strong>
-                        <a href="admin-home.html" id="link-admin" style="display:none;">Panel</a>
-                        <a href="#" id="link-logout">Cerrar sesión</a>
-                    </span>
-                    <a href="carrito.html" class="btn-cart">🛒 (<span id="cart-count">0</span>)</a>
+                <div id="zona-invitado" class="me-3">
+                    <a href="login.html" class="text-white me-2">Iniciar Sesión</a>
+                    <a href="registro.html" class="text-white">Registro</a>
                 </div>
+                <div id="zona-usuario" class="d-none text-white me-3">
+                    Hola, <strong id="nombre-usuario"></strong> ·
+                    <a href="admin-productos.html" id="link-admin" class="text-white d-none">Admin</a>
+                    <a href="#" id="link-logout" class="text-white">Cerrar sesión</a>
+                </div>
+                <a href="carrito.html" class="btn-cart">🛒 <span id="cart-count">0</span></a>
             </div>
         </div>
     </nav>
 
-    <main>
-
-    <!-- Se rellena con renderizarDetalleBlog() en js/productos.js -->
-    <section class="blog-detalle-container" id="detalle-blog"></section>
-
+    <main class="container my-5" style="max-width: 700px;">
+        <a href="blogs.html">&larr; Volver a Blogs</a>
+        <h1 class="mt-3">Cómo elegir tu primer teclado mecánico</h1>
+        <img src="img/teclado.jpg" class="img-fluid rounded my-3" alt="Teclado mecánico" onerror="this.src='img/placeholder.png'">
+        <p>
+            Los teclados mecánicos usan un switch individual debajo de cada tecla, a diferencia
+            de los teclados de membrana. Esto les da una respuesta más precisa y, en general,
+            mayor durabilidad.
+        </p>
+        <p>
+            Los switches Red son lineales y suaves, ideales para juegos rápidos. Los switches
+            Blue son clicky y dan una retroalimentación táctil y sonora, populares para escribir.
+            Los switches Brown son un punto intermedio entre ambos.
+        </p>
+        <p>
+            Si estás empezando, te recomendamos probar un switch Brown: sirve bien tanto para
+            jugar como para escribir, sin ser tan ruidoso como un Blue.
+        </p>
     </main>
 
     <footer>
-        <p>&copy; 2026 PROSETUP - Todos los derechos reservados.</p>
+        <p>&copy; 2026 ProSetup</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/productos.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

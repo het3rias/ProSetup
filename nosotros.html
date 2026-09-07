@@ -5,84 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProSetup - Nosotros</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/Style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="index.html">
-                <img src="img/logo2.png" alt="ProSetup" width="80" height="45" class="img-fluid" onerror="this.src='https://via.placeholder.com/80x45?text=PROSETUP'">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir navegación">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">ProSetup</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="nosotros.html">Nosotros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
                     <li class="nav-item"><a class="nav-link" href="blogs.html">Blogs</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacto.html">Contacto</a></li>
                 </ul>
-                <div class="user-actions" id="user-actions">
-                    <a href="login.html" id="link-login">Iniciar Sesión</a>
-                    <a href="registro.html" id="link-registro">Registro</a>
-                    <span class="usuario-info" id="usuario-info" style="display:none;">
-                        Hola, <strong id="usuario-nombre"></strong>
-                        <a href="admin-home.html" id="link-admin" style="display:none;">Panel</a>
-                        <a href="#" id="link-logout">Cerrar sesión</a>
-                    </span>
-                    <a href="carrito.html" class="btn-cart">🛒 (<span id="cart-count">0</span>)</a>
+                <div id="zona-invitado" class="me-3">
+                    <a href="login.html" class="text-white me-2">Iniciar Sesión</a>
+                    <a href="registro.html" class="text-white">Registro</a>
                 </div>
+                <div id="zona-usuario" class="d-none text-white me-3">
+                    Hola, <strong id="nombre-usuario"></strong> ·
+                    <a href="admin-productos.html" id="link-admin" class="text-white d-none">Admin</a>
+                    <a href="#" id="link-logout" class="text-white">Cerrar sesión</a>
+                </div>
+                <a href="carrito.html" class="btn-cart">🛒 <span id="cart-count">0</span></a>
             </div>
         </div>
     </nav>
 
-    <main>
-
-    <section class="nosotros-container">
+    <main class="container my-5">
         <h1>Sobre ProSetup</h1>
-        <p class="nosotros-subtitulo">Componentes y periféricos para armar el setup que realmente quieres.</p>
+        <p class="lead">
+            Somos una tienda online dedicada a componentes de computador y periféricos
+            gamer, creada por estudiantes de Duoc UC como proyecto de la asignatura
+            Desarrollo Fullstack II.
+        </p>
+        <p>
+            Nuestro objetivo es ofrecer productos de calidad a buen precio, con una
+            experiencia de compra simple y rápida. Partimos como un proyecto académico,
+            pero lo construimos pensando en cómo sería una tienda real.
+        </p>
 
-        <p>ProSetup nace de una idea simple: comprar partes para tu computador no debería ser complicado. Somos una tienda online enfocada en componentes de PC y periféricos gamer, pensada para quienes arman su primer equipo y también para quienes buscan actualizar su setup pieza por pieza.</p>
-        <p>Seleccionamos cada producto de nuestro catálogo pensando en la relación entre calidad y precio, y trabajamos para que la información de cada producto —stock, especificaciones, precio— esté siempre clara y actualizada.</p>
-
-        <div class="nosotros-video-wrapper">
-            <video controls poster="">
-                <source src="https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4" type="video/mp4">
-                Tu navegador no soporta la reproducción de video.
+        <h2 class="mt-5">Conócenos en video</h2>
+        <div class="ratio ratio-16x9" style="max-width: 700px;">
+            <video controls>
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                Tu navegador no soporta el video.
             </video>
         </div>
-        <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:-15px;">Video institucional de ejemplo (Big Buck Bunny, Blender Foundation, licencia CC BY 3.0).</p>
-
-        <h2 style="margin-top:40px; font-size:1.4rem;">Nuestro equipo</h2>
-        <div class="nosotros-equipo">
-            <div class="nosotros-equipo-card">
-                <div class="avatar-inicial">BS</div>
-                <h3>Benjamín Soto</h3>
-                <p>Desarrollo Frontend</p>
-            </div>
-            <div class="nosotros-equipo-card">
-                <div class="avatar-inicial">EQ</div>
-                <h3>Equipo ProSetup</h3>
-                <p>Diseño y Producto</p>
-            </div>
-            <div class="nosotros-equipo-card">
-                <div class="avatar-inicial">EQ</div>
-                <h3>Equipo ProSetup</h3>
-                <p>Soporte y Logística</p>
-            </div>
-        </div>
-    </section>
-
     </main>
 
     <footer>
-        <p>&copy; 2026 PROSETUP - Todos los derechos reservados.</p>
+        <p>&copy; 2026 ProSetup</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/productos.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
