@@ -16,13 +16,37 @@ const productosIniciales = [
     { id: 3, codigo: "AUD-001", nombre: "Audífonos Gaming 7.1", descripcion: "Audífonos con sonido envolvente 7.1 y micrófono desmontable.", precio: 38990, stock: 12, stockCritico: 4, categoria: "Audio", imagen: "img/placeholder.png" },
     { id: 4, codigo: "MON-001", nombre: "Monitor Gamer 24\" 144Hz", descripcion: "Monitor Full HD de 24 pulgadas con tasa de refresco de 144Hz.", precio: 149990, stock: 8, stockCritico: 3, categoria: "Monitores", imagen: "img/placeholder.png" },
     { id: 5, codigo: "ACC-001", nombre: "Mousepad XL RGB", descripcion: "Mousepad extendido con borde iluminado RGB.", precio: 14990, stock: 30, stockCritico: 8, categoria: "Accesorios", imagen: "img/placeholder.png" },
-    { id: 6, codigo: "ACC-002", nombre: "Webcam Full HD 1080p", descripcion: "Webcam con resolución 1080p y corrección automática de luz.", precio: 35990, stock: 14, stockCritico: 4, categoria: "Accesorios", imagen: "img/placeholder.png" }
+    { id: 6, codigo: "ACC-002", nombre: "Webcam Full HD 1080p", descripcion: "Webcam con resolución 1080p y corrección automática de luz.", precio: 35990, stock: 14, stockCritico: 4, categoria: "Accesorios", imagen: "img/placeholder.png" },
+    { id: 7, codigo: "SIL-001", nombre: "Silla Gamer Ergonómica", descripcion: "Silla gamer con respaldo reclinable, apoyabrazos ajustables y base de 5 ruedas.", precio: 119990, stock: 6, stockCritico: 2, categoria: "Sillas y Mobiliario", imagen: "img/silla-gamer.jpg" },
+    { id: 8, codigo: "AUD-002", nombre: "Parlantes Bluetooth 2.1", descripcion: "Set de parlantes 2.1 con subwoofer, conexión Bluetooth y entrada auxiliar.", precio: 42990, stock: 10, stockCritico: 3, categoria: "Audio", imagen: "img/parlantes.jpg" },
+    { id: 9, codigo: "AUD-003", nombre: "Micrófono de Condensador USB", descripcion: "Micrófono USB plug and play para streaming y grabación, con soporte antivibración.", precio: 54990, stock: 9, stockCritico: 3, categoria: "Audio", imagen: "img/microfono.jpg" },
+    { id: 10, codigo: "ACC-003", nombre: "Hub USB-C 7 en 1", descripcion: "Adaptador USB-C con salida HDMI, lector de tarjetas SD/microSD y 3 puertos USB 3.0.", precio: 24990, stock: 18, stockCritico: 5, categoria: "Accesorios", imagen: "img/hub-usb.jpg" },
+    { id: 11, codigo: "ACC-004", nombre: "Soporte de Monitor Articulado", descripcion: "Brazo articulado de escritorio para un monitor, con ajuste de altura e inclinación.", precio: 32990, stock: 11, stockCritico: 3, categoria: "Accesorios", imagen: "img/soporte-monitor.jpg" },
+    { id: 12, codigo: "COM-001", nombre: "SSD NVMe 1TB", descripcion: "Unidad de estado sólido NVMe M.2 de 1TB, velocidades de lectura de hasta 3500 MB/s.", precio: 64990, stock: 16, stockCritico: 4, categoria: "Componentes", imagen: "img/ssd-nvme.jpg" }
 ];
 
-// Si es la primera vez que se abre el sitio, guardamos los productos base
+// Si es la primera vez que se abre el sitio, guardamos los productos base.
+// Si ya existían productos guardados (visitas anteriores), se agregan los
+// productos nuevos que falten por código, sin perder cambios ya hechos
+// desde el panel de administración.
 function inicializarProductos() {
-    if (!localStorage.getItem("productosDB")) {
+    const actuales = JSON.parse(localStorage.getItem("productosDB"));
+
+    if (!actuales) {
         localStorage.setItem("productosDB", JSON.stringify(productosIniciales));
+        return;
+    }
+
+    const codigosExistentes = new Set(actuales.map(p => p.codigo));
+    const nuevoMaxId = actuales.length ? Math.max(...actuales.map(p => p.id)) : 0;
+    let siguienteId = nuevoMaxId + 1;
+
+    const faltantes = productosIniciales
+        .filter(p => !codigosExistentes.has(p.codigo))
+        .map(p => ({ ...p, id: siguienteId++ }));
+
+    if (faltantes.length > 0) {
+        localStorage.setItem("productosDB", JSON.stringify([...actuales, ...faltantes]));
     }
 }
 
